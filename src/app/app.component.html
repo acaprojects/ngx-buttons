@@ -2,5 +2,11 @@
     <div class="test">
         <button widget (tapped)="model.count = model.count + 1">Test</button>
         Tapped: {{ model.count || '0' }}
+        <a-button-group [(model)]="model.active">
+            <button widget>Button 1</button>
+            <button widget>Another Button</button>
+            <button widget>A last button</button>
+        </a-button-group>
+        Active button index: {{ model.active }}
     </div>
 </div>

@@ -14,11 +14,12 @@ import { CustomEventsModule } from '@acaprojects/ngx-custom-events';
 import { LIBRARY_SETTINGS } from './settings';
 
 import { ButtonComponent } from './components/button/button.component';
+import { ButtonGroupComponent } from './components/button-group/button-group.component';
 
 import * as day_api from 'dayjs';
 const dayjs = day_api;
 
-const COMPONENTS: Type<any>[] = [ButtonComponent];
+const COMPONENTS: Type<any>[] = [ButtonComponent, ButtonGroupComponent];
 
 @NgModule({
     declarations: [...COMPONENTS],

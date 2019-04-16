@@ -7,9 +7,12 @@ import {
     OnChanges,
     AfterViewInit,
     Output,
-    EventEmitter
+    EventEmitter,
+    forwardRef
 } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
+type FIELD_TYPE = boolean;
 @Component({
     selector: 'button[widget]',
     template: `
@@ -17,21 +20,33 @@ import {
             <ng-content></ng-content>
         </div>
     `,
-    styleUrls: ['./button.component.scss']
+    styleUrls: ['./button.component.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => ButtonComponent),
+            multi: true
+        }
+    ]
 })
-export class ButtonComponent implements OnChanges, AfterViewInit {
+export class ButtonComponent implements OnChanges, AfterViewInit, ControlValueAccessor {
     /** CSS class to add to the root element */
     @Input() public klass = 'default';
-    /** Active state of the button */
-    @Input() public model: boolean;
     /** Whether button is part of a group */
     @Input() public group: boolean;
-    /** Event emitter for changes to active state */
-    @Output() public modelChange = new EventEmitter<boolean>();
     /** Event emitter for touch */
     @Output() public tapped = new EventEmitter();
 
+    /** Toggle state of the button */
+    public state: FIELD_TYPE;
+
+    /** Unique identifier for the instance of the button component */
     readonly id: string = `button-${Math.floor(Math.random() * 999999)}`;
+
+    /** Form control on change handler */
+    private _onChange: (_: FIELD_TYPE) => void;
+    /** Form control on touch handler */
+    private _onTouch: (_: FIELD_TYPE) => void;
 
     constructor(private element: ElementRef<HTMLButtonElement>, private renderer: Renderer2) {}
 
@@ -39,8 +54,8 @@ export class ButtonComponent implements OnChanges, AfterViewInit {
         if (changes.klass) {
             this.setClass(this.klass, changes.klass.previousValue);
         }
-        if (changes.model) {
-            this.setClass(this.model ? 'active' : '', this.model ? '' : 'active');
+        if (changes.state) {
+            this.setClass(this.state ? 'active' : '', this.state ? '' : 'active');
         }
         if (changes.group) {
             this.setGroup();
@@ -78,8 +93,8 @@ export class ButtonComponent implements OnChanges, AfterViewInit {
     }
 
     public setState(state: boolean) {
-        this.model = state;
-        this.setClass(this.model ? 'active' : '', this.model ? '' : 'active');
+        this.state = state;
+        this.setClass(this.state ? 'active' : '', this.state ? '' : 'active');
     }
 
     /**
@@ -87,9 +102,35 @@ export class ButtonComponent implements OnChanges, AfterViewInit {
      */
     public tap() {
         this.tapped.emit();
-        if (this.model !== undefined || this.group) {
-            this.setState(!this.model);
-            this.modelChange.emit(this.model);
+        if (this.state !== undefined || this.group) {
+            this.setState(!this.state);
+            if (this._onChange) {
+                this._onChange(this.state);
+            }
         }
+    }
+
+    /**
+     * Update local value when form control value is changed
+     * @param value The new value for the component
+     */
+    public writeValue(value: FIELD_TYPE) {
+        this.state = value;
+    }
+
+    /**
+     * Registers a callback function that is called when the control's value changes in the UI.
+     * @param fn The callback function to register
+     */
+    public registerOnChange(fn: (_: FIELD_TYPE) => void): void {
+        this._onChange = fn;
+    }
+
+    /**
+     * Registers a callback function is called by the forms API on initialization to update the form model on blur.
+     * @param fn The callback function to register
+     */
+    public registerOnTouched(fn: (_: FIELD_TYPE) => void): void {
+        this._onTouch = fn;
     }
 }

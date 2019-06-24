@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { AButtonsModule } from 'projects/library/src/public-api';
+import { ACustomEventsModule } from '@acaprojects/ngx-custom-events';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { AButtonsModule } from 'projects/library/src/public-api';
     AButtonsModule,
     BrowserModule,
     FormsModule,
+    ACustomEventsModule,
     BrowserAnimationsModule,
   ],
   providers: [],

@@ -16,7 +16,7 @@ type FIELD_TYPE = boolean;
 @Component({
     selector: 'button[widget]',
     template: `
-        <div class="wrapper" feedback (tapped)="tap()">
+        <div class="wrapper" feedback>
             <ng-content></ng-content>
         </div>
     `,
@@ -34,8 +34,6 @@ export class AButtonComponent implements OnChanges, AfterViewInit, ControlValueA
     @Input() public klass = 'default';
     /** Whether button is part of a group */
     @Input() public group: boolean;
-    /** Event emitter for touch */
-    @Output() public tapped = new EventEmitter();
 
     /** Toggle state of the button */
     public state: FIELD_TYPE;
@@ -95,19 +93,6 @@ export class AButtonComponent implements OnChanges, AfterViewInit, ControlValueA
     public setState(state: boolean) {
         this.state = state;
         this.setClass(this.state ? 'active' : '', this.state ? '' : 'active');
-    }
-
-    /**
-     * Callback for tapped events
-     */
-    public tap() {
-        this.tapped.emit();
-        if (this.state !== undefined || this.group) {
-            this.setState(!this.state);
-            if (this._onChange) {
-                this._onChange(this.state);
-            }
-        }
     }
 
     /**
